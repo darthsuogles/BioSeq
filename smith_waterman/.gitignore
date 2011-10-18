@@ -1,3 +1,6 @@
 *~
 test
 *.o
+CMakeCache.txt
+CMakeFiles
+CMakeFiles/*

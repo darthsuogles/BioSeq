@@ -1,0 +1,161 @@
+
+Makefile,166
+gpu_src=3,28
+gpu_obj=4,53
+cpu_src=6,83
+cpu_obj=7,109
+all:all9,137
+$(gpu_obj)$(gpu_obj11,148
+$(cpu_obj)$(cpu_obj15,244
+test:test19,331
+clean:clean23,478
+
+NC_004347.faa,420
+>gi|24371604|ref|NP_715646.1| inner membrane protein,22,1395
+>gi|24371609|ref|NP_715651.1| DNA polymerase III,47,3120
+>gi|24371611|ref|NP_715653.1| DNA gyrase,61,4049
+>gi|24371627|ref|NP_715669.1| protoporphyrinogen oxidase,174,11827
+>gi|24371634|ref|NP_715676.1| DNA processing protein DprA,219,14922
+>gi|24371647|ref|NP_715689.1| carboxyl-terminal protease,274,18504
+>gi|24371653|ref|NP_715695.1| NAD(306,20659
+
+NC_004349.faa,2328
+>gi|24376233|ref|NP_720341.1| type II restriction-modification system activator,7,382
+>gi|24376234|ref|NP_720342.1| type II restriction endonuclease,10,578
+>gi|24376247|ref|NP_720355.1| ISSod9,70,4681
+>gi|24376248|ref|NP_720356.1| ISSo9,86,5763
+>gi|24376250|ref|NP_720358.1| ISSod9,92,6190
+>gi|118725023|ref|NP_720362.2| ISSod1,102,6876
+>gi|24376253|ref|NP_720361.1| ISSod1,109,7353
+>gi|118725024|ref|NP_720364.2| ISSod1,117,7916
+>gi|24376257|ref|NP_720365.1| ISSod1,124,8393
+>gi|24376263|ref|NP_720371.1| ISSod4,152,10266
+>gi|118725026|ref|NP_720374.2| ISSod1,162,10908
+>gi|24376265|ref|NP_720373.1| ISSod1,169,11385
+>gi|24376277|ref|NP_720385.1| toxin secretion ABC transporter,231,15589
+>gi|24376277|ref|NP_720385.1| toxin secretion ABC transporter, ATP-binding subunit/permease protein,231,15589
+>gi|24376278|ref|NP_720386.1| toxin secretion,243,16464
+>gi|118725030|ref|NP_720389.2| ISSod1,253,17198
+>gi|24376282|ref|NP_720390.1| ISSod1,260,17675
+>gi|24376289|ref|NP_720397.1| parA protein,282,19133
+>gi|24376291|ref|NP_720399.1| ISSod8,290,19657
+>gi|118725032|ref|NP_720400.2| ISSod1,294,19924
+>gi|24376293|ref|NP_720401.1| ISSod1,301,20401
+>gi|24376300|ref|NP_720408.1| ISSod6,329,22283
+>gi|24376307|ref|NP_720415.1| ISSod4,352,23735
+>gi|24376308|ref|NP_720416.1| ISSod8,363,24488
+>gi|24376311|ref|NP_720419.1| plasmid stabilization protein ParE,374,25229
+>gi|118725035|ref|NP_720420.2| ISSod1,377,25438
+>gi|24376313|ref|NP_720421.1| ISSod1,384,25915
+>gi|24376317|ref|NP_720425.1| ISSod6,405,27352
+>gi|118725036|ref|NP_720429.2| ISSod3,433,29286
+>gi|24376323|ref|NP_720431.1| ISSod8,442,29907
+>gi|24376334|ref|NP_720442.1| ISSod13,541,36779
+>gi|24376335|ref|NP_720443.1| ISSod12,547,37210
+>gi|24376341|ref|NP_720449.1| ISSod4,567,38609
+>gi|118725039|ref|NP_720453.2| ISSod3,581,39566
+>gi|24376351|ref|NP_720459.1| ISSod13,617,42024
+>gi|24376352|ref|NP_720460.1| ISSod4,623,42455
+>gi|24376353|ref|NP_720461.1| ISSod1,630,42940
+>gi|24376359|ref|NP_720467.1| ISSod13,659,44781
+>gi|118725042|ref|NP_720470.2| heavy metal efflux protein,686,46691
+>gi|24376368|ref|NP_720476.1| esterase,712,48397
+>gi|24376370|ref|NP_720478.1| ISSod6,724,49226
+>gi|24376373|ref|NP_720481.1| ISSod9,742,50438
+>gi|24376374|ref|NP_720482.1| ISSo9,758,51520
+>gi|24376376|ref|NP_720484.1| ISSod9,764,51947
+
+NC_010622.faa,194
+>gi|186474775|ref|YP_001856245.1| DNA polymerase III,10,638
+>gi|186474776|ref|YP_001856246.1| DNA gyrase,17,1109
+>gi|186474801|ref|YP_001856271.1| phosphoenolpyruvate carboxykinase 171,12088
+
+NC_010623.faa,180
+>gi|186471992|ref|YP_001859334.1| phosphate ABC transporter,85,5863
+>gi|186472006|ref|YP_001859348.1| diguanylate cyclase/phosphodiesterase with PAS/PAC and GAF sensor(165,11379
+
+NC_010625.faa,407
+>gi|186470360|ref|YP_001861678.1| putative nonspecific acid phosphatase,93,6357
+>gi|186470389|ref|YP_001861707.1| succinate dehydrogenase,261,18374
+>gi|186470390|ref|YP_001861708.1| succinate dehydrogenase,264,18628
+>gi|186470391|ref|YP_001861709.1| succinate dehydrogenase,267,18878
+>gi|186470403|ref|YP_001861721.1| haloacid dehalogenase,347,24498
+>gi|186470428|ref|YP_001861746.1| Rieske 506,35502
+
+NC_010627.faa,62
+>gi|186474331|ref|YP_001863302.1| rubredoxin-type Fe(44,3073
+
+database.cpp,215
+inline ostream& operator<< 54,946
+float smith_waterman(130,2656
+inline string chomp(159,3470
+void SeqDB::load(167,3845
+void SeqDB::save(234,5285
+inline float distance(269,5812
+GestureType SeqDB::kNN(277,5958
+
+database.h,190
+using namespace std;7,98
+class SeqDB 10,158
+  SeqDB(SeqDB::SeqDB13,181
+  SeqDB(SeqDB::SeqDB14,193
+  vector<string> _seq;SeqDB::_seq29,575
+  vector<string> _meta;SeqDB::_meta30,598
+
+extra_alignment.cu,24
+void alignment(98,5999
+
+extra_alignment.cu.o,22
+	.target sm_10,5,942
+
+extra_alignment_kernel.cu,186
+#define _ALIGNMENT_KERNEL_H_42,2023
+#define MAX_SHARED_MEM 46,2077
+__global__ void init_sequence(54,2253
+__device__ inline int score(60,2298
+__global__ void alignmentKernel(67,2404
+
+extra_credit.txt,1149
+One conservative way of doing that is to assume that from now on,5,278
+One conservative way of doing that is to assume that from now on, all the pairs in the two protein sequences will match with each other and each gives the highest score,5,278
+One conservative way of doing that is to assume that from now on, all the pairs in the two protein sequences will match with each other and each gives the highest score, i.e. 11.(use 11 times the the length of the longer remainder of the two protein sequences) Thus we take the result according to this scene,5,278
+One conservative way of doing that is to assume that from now on, all the pairs in the two protein sequences will match with each other and each gives the highest score, i.e. 11.(use 11 times the the length of the longer remainder of the two protein sequences) Thus we take the result according to this scene, and compare it with the current best one. If it is smaller,5,278
+The result largely depend on the data. To be specific,7,675
+The result largely depend on the data. To be specific, the order of protein sequences in the database. If we meet the one with highest score 7,675
+
+hw2.cpp,352
+#define debug_mode 11,215
+#define pruning_level 19,483
+const int size_blosum 25,621
+int BLOSUM62[BLOSUM6226,650
+map<char, int> map_index_blosum;54,3691
+int best_score 57,3749
+string best_result;60,3808
+string best_meta;63,3856
+int main(80,4310
+void enquery(149,6486
+int alignment(194,7336
+int score(249,8790
+void alignment_print(271,9152
+
+match.txt,17
+Philip Yang 1,0
+
+sw_align_cpu.cpp,352
+#define debug_mode 11,215
+#define pruning_level 19,483
+const int size_blosum 25,621
+int BLOSUM62[BLOSUM6226,650
+map<char, int> map_index_blosum;54,3691
+int best_score 57,3749
+string best_result;60,3808
+string best_meta;63,3856
+int main(80,4310
+void enquery(149,6496
+int alignment(194,7346
+int score(249,8800
+void alignment_print(271,9162
+
+extra_pruning_2_result.txt,0
+
+README.txt,0

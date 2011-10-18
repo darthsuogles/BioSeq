@@ -43,7 +43,7 @@
 
 #include <stdio.h>
 
-#define MAX_SHARED_MEM 1000;
+#define MAX_SHARED_MEM 1000
 //#define SDATA( index)      cutilBankChecker(sdata, index)
 
 /**
@@ -81,7 +81,7 @@ __global__ void alignmentKernel( char* query, int query_size, char* seqbase, int
   __shared__ int g_buffer[MAX_SHARED_MEM];
   for (int i=0; i<seq_size; g_buffer[threadIdx.x * seq_size + i] = 0, ++i);
 
-  int* buffer = g_buffer[threadIdx.x * seq_size];
+  int* buffer = &g_buffer[threadIdx.x * seq_size];
   int max_val = -1;
   for ( int i = 0; i < seq_size; ++i)
     {

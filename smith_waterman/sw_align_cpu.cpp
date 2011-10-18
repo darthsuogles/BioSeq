@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <ctime>
+#include <sys/time.h>
 using namespace std;
 
 // debug mode: set it true if you want to see the calculation steps
@@ -18,8 +19,9 @@ using namespace std;
 //          2 for pruning using heuristics
 #define pruning_level 0
 
-
 //*******************global variable declarations**************************
+
+int g_mismatch_score = -4;
 
 // BLOSUM62 is used for evaluation
 const int size_blosum  = 24;
@@ -50,6 +52,7 @@ int BLOSUM62[size_blosum*size_blosum] = {
   -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,  -4,   1
 };
 
+
 // character to index mapping
 map<char, int> map_index_blosum;
 
@@ -62,11 +65,11 @@ string best_result;
 // best protein's metadata
 string best_meta;
 
-
 //************************function declarations****************************
 
 // local alignment function for string
-int alignment( const char* query, const char* base, int len_query, int len_base); 
+//int alignment( const char* query, const char* base, int len_query, int len_base); 
+int sw_align_kernel(string S, string T);
 
 // evaluation function for alignment
 int score(char ch1, char ch2);
@@ -76,6 +79,14 @@ void enquery(char* file_name, char* query);
 
 // output the result alignment details
 void alignment_print(const char* S, const char* T);
+
+double getElapsedTime(timeval& t1, timeval& t2)
+{
+  double elapsedTime;
+  elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+  elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+  return elapsedTime;
+}
 
 int main()
 {
@@ -108,14 +119,18 @@ int main()
   map_index_blosum['*']=23;
     
   char* query = "MTHQSHAYHMVKPSPWPLTGALSALLMTSGLAMWFHFHSMTLLMLGLLTNTLTMYQWWRDVTRESTYQGHHTPPVQKGLRYGMILFITSEVFFFAGFFWAFYHSSLAPTPQLGGHWPPTGITPLNPLEVPLLNTSVLLASGVSITWAHHSLMENNRNQMIQALLITILLGLYFTLLQASEYFESPFTISDGIYGSTFFVATGFHGLHVIIGSTFLTICFIRQLMFHFTSKHHFGFEAAAWYWHFVDVVWLFLYVSIYWWG";
-  
+
   // community prokaryote
-  start_time = time(NULL);
+  timeval t1, t2;
+
+  //start_time = time(NULL);
+  gettimeofday(&t1, NULL);
   enquery("NC_004347.faa", query);
   enquery("NC_004349.faa", query);
-  end_time = time(NULL);
+  //end_time = time(NULL);
+  gettimeofday(&t2, NULL);
   
-  printf("time elapsed for community prokaryote %f\n", difftime(end_time, start_time));
+  printf("time elapsed for community prokaryote %.4lf s\n", getElapsedTime(t1, t2)/1000.0);
   printf("best score: %d\nbest result: %s\n\n", best_score, best_result.c_str());
   printf("result as follows: \n %s\n", best_meta.c_str());
   alignment_print(query, best_result.c_str());
@@ -126,24 +141,20 @@ int main()
   printf("\n***************************************************************************************\n");
 
   // my own prokaryote
-  start_time = time(NULL);
+  gettimeofday(&t1, NULL);
   enquery("NC_010622.faa", query);
   enquery("NC_010623.faa", query);
   enquery("NC_010625.faa", query);
   enquery("NC_010627.faa", query);	
-  end_time = time(NULL);
-
-  printf("time elapsed for my own prokaryote %f\n", difftime(end_time, start_time));
+  gettimeofday(&t2, NULL);
+  
+  printf("time elapsed for my own prokaryote %.4lf s\n", getElapsedTime(t1, t2)/1000.0);
   printf("best score: %d\nbest result: %s\n\n", best_score, best_result.c_str());
   printf("result as follows: \n %s\n", best_meta.c_str());
   alignment_print(query, best_result.c_str());
 
-
-  //alignment_print("abcxdex", "xxxcde");
-
   return 0;
 }
-
 
 
 void enquery(char* file_name, char* query)
@@ -153,6 +164,7 @@ void enquery(char* file_name, char* query)
 
   string input;
   string sequence;
+  string seq_meta;
 
   int num_protein = 0;
   while ( getline(fin, input) )
@@ -166,83 +178,69 @@ void enquery(char* file_name, char* query)
 	  // it is possible that an protein coding is just finished
 	  if ( sequence.size() > 0 )
 	    {	
-	      int score = alignment(query, sequence.c_str(), strlen(query), sequence.size());
+	      int score = sw_align_kernel(query, sequence);
 
 	      if (score > best_score)
 		{
 		  best_score = score;
 		  best_result = sequence;					
-		  best_meta = input;
+		  best_meta = seq_meta;
 		}
-
-
+	      
 	      //printf( "file: %s, protein #%d, current score: %d, best score: %d\n", file_name, ++num_protein, score, best_score );
-
 	      sequence.clear();
 	    }
+
+	  seq_meta = input; /// Store the meta data for next sequence
 	}
 
       else
 	sequence += input;
+    }	
+  
+  /// Compare the last sequence and update the data
+  int score = sw_align_kernel(query, sequence);  
+  if (score > best_score)
+    {
+      best_score = score;
+      best_result = sequence;					
+      best_meta = seq_meta;
     }
-	
 }
 
-
-
 // actual local alignment algorithm
-int alignment( const char* query, const char* base, int len_query, int len_base) 
+//int alignment(const char* S, const char* T, int len_query, int len_base) 
+int sw_align_kernel(string S, string T)
 {
-  //int* ptr0 = (int*)malloc(sizeof(int)*(len_query+1));
-  //int* ptr1 = (int*)malloc(sizeof(int)*(len_query+1));
+  int m = S.size();
+  int n = T.size();
 
-  int *ptr = (int*)malloc(sizeof(int)*2*(len_query+1));
-  int *ptr0 = ptr;
-  int *ptr1 = ptr0 + len_query + 1;
-
-  //memset(ptr0, 0, sizeof(int)*(len_query+1));
-  //memset(ptr1, 0, sizeof(int)*(len_query+1));
-  memset(ptr, 0, sizeof(int)*2*(len_query+1));
-
-  for ( int j = 1; j<=len_base; ++j )
+  int mismatch = g_mismatch_score;
+  int prev = 0; /// We need one more element to store the previous data
+  int* score_table = new int[n+1];
+  memset(score_table, 0, sizeof(int)*(n+1));  
+  
+  int max_val = -1e9;
+  char* sp = &S[0];
+  for ( int i=0; i<m; ++i )
     {
-      for ( int i=1; i<=len_query; ++i )
+      prev = 0; 
+      char* tp = &T[0];
+      for ( int j=1; j<=n; ++j )
 	{
-	  // left, up and diagnol values
-	  int vl = *( ptr1 + i - 1 ) + score( *( query + i - 1 ) , '-');
-	  int vu = *( ptr0 + i ) + score( '-', *( base + j - 1 ) );
-	  int vd = *( ptr0 + i - 1 ) + score( *( query + i - 1 ), *( base + j - 1 ) );
-
-	  *(ptr1+i) = max( max(max(vl, vu), max(vu, vd)), max(max(vd, 0), max(0, vl)));		
-
-
-#if pruning_level == 1
-	  if ( *(ptr1+i) +11*max(len_query - i, len_base - j)  < best_score)
-	    return -1;
-#endif
+	  int vl = prev + mismatch;
+	  int vd = score_table[j-1] + score(*sp, *tp++);
+	  int vu = score_table[j] + mismatch;
 	  
-#if pruning_level == 2
-	  if ( *(ptr1+i) +7*max(len_query - i, len_base - j)  < best_score)
-	    return -1;
-#endif
+	  score_table[j-1] = prev;
+	  prev = max(max(vl, 0), max(vd, vu));	
+	  max_val = max(max_val, prev);
 	}
-
-      // after one cycle, switch ptr0 and ptr1
-      int* tmp = ptr1;
-      ptr1 = ptr0;
-      ptr0 = tmp;
+      ++sp;
     }
-
-  int ret = 0;
-  /*if ( len_base % 2 )
-    ret = *( ptr1 + len_query );
-    else
-    ret = *( ptr0 + len_query );*/
-  ret = *( ptr + len_query + ( len_base%2 ) * ( len_query + 1 ) );
-
-  free(ptr);
-  //free(ptr1);
-  return ret;
+  
+  delete [] score_table;
+  return max_val;
 }
 
 
@@ -251,20 +249,18 @@ int score(char ch1, char ch2)
   if (ch1 == '-' || ch2 == '-')
     return -4;
 
-  int x = map_index_blosum[ch1];
-  int y = map_index_blosum[ch2];
+  int x, y;
 
   if ( map_index_blosum.count(ch1) == 0 )
     x = 22;
+  else
+    x = map_index_blosum[ch1];
   if ( map_index_blosum.count(ch2) == 0 )
     y = 22;
+  else
+    y = map_index_blosum[ch2];
 
   return BLOSUM62[ y*size_blosum + x];
-
-  //if ( ch1 == ch2 )
-  //	return 2;
-  //else
-  //	return -1;
 }
 
 
@@ -279,14 +275,12 @@ void alignment_print(const char* S, const char* T)
 
   memset( ptr, 0, sizeof(int) * 2 * (size_S+1) );
 
-
   // reconstruction table
   char* reconstr = (char*)malloc( sizeof(char) * (size_S + 1) * (size_T + 1) );
 
   *reconstr = 'e';
   for ( int j = 0; j <= size_T; ++j )
     {
-      //*( reconstr + j * ( size_S + 1 ) ) = 'u';
       for ( int i = 0; i <= size_S; ++i )
 	{
 	  if ( i == 0 && j != 0 )
@@ -298,20 +292,20 @@ void alignment_print(const char* S, const char* T)
 	}
     }
 
-
-
   // do the dp and update the reconstruction table
+  int max_score = -1e9;
   for ( int j =1; j <= size_T; ++j )
     {
       for ( int i = 1; i <= size_S; ++i )
 	{
 	  // left, up and diagnol values
-	  int vl = *( ptr1 + i - 1 ) + score( *( S + i - 1 ) , '-');
-	  int vu = *( ptr0 + i ) + score( '-', *( T + j - 1 ) );
+	  int vl = *( ptr1 + i - 1 ) + g_mismatch_score;
+	  int vu = *( ptr0 + i ) + g_mismatch_score;
 	  int vd = *( ptr0 + i - 1 ) + score( *( S + i - 1 ), *( T + j - 1 ) );
 
-	  *(ptr1+i) = max( max(max(vl, vu), max(vu, vd)), max(max(vd, 0), max(0, vl)));		
-			
+	  /// Keep a record of the maximum score seen so far
+	  max_score = max( max_score, *(ptr1+i) = max( max(vd, 0), max(vl, vu) ) );
+	  
 	  if ( vl ==  *(ptr1+i) )
 	    *( reconstr + j * (size_S + 1) + i ) = 'l' ;
 	  if ( vu ==  *(ptr1+i) )
@@ -331,9 +325,7 @@ void alignment_print(const char* S, const char* T)
       ptr0 = ptr1;
       ptr1 = tmp;
     }
-
-  int local_score = *( ptr + size_S + ( size_T%2 ) * ( size_S + 1 ) );
-
+  
   // reconstruction
   char* iter = reconstr + (size_T + 1)*(size_S + 1) - 1;
   int idx_T = size_T - 1;
@@ -391,7 +383,7 @@ void alignment_print(const char* S, const char* T)
 	  --idx_T;
 	  iter -= size_S + 1 ;
 	}
-
+      
       else
 	printf("Error: the reconstruction table contains unidentified character -- %c\n", *iter);
     }
@@ -411,5 +403,5 @@ void alignment_print(const char* S, const char* T)
 
   al_mid += prefix_mid;
 
-  printf("score:%d\n Q %d %s %d\n     %s\n S %d %s %d\n", local_score, idx_S + 2, al_S.c_str(), end_S+1, al_mid.c_str(), idx_T+2,al_T.c_str(), end_T+1);
+  printf("score:%d\n Q %d %s %d\n     %s\n S %d %s %d\n", max_score, idx_S + 2, al_S.c_str(), end_S+1, al_mid.c_str(), idx_T+2,al_T.c_str(), end_T+1);
 }
