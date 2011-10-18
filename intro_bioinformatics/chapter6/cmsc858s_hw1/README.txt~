@@ -1,0 +1,6 @@
+ReadMe
+
+How to run the program? 
+1. Make sure that your python interpreter is located in /usr/local/bin
+   If yes, run
+       ./align.py <match score> <mismatch score> <gap open score> <gap extend score> <sequence file 1> <sequence file 2>

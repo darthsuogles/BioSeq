@@ -1,0 +1,25 @@
+
+align.py,587
+def score(14,353
+def score_gap(23,519
+def recover(34,789
+def result(62,1689
+def g_align(69,1881
+def l_align(117,3318
+def g_align_gap(174,4937
+def fit_score(260,7285
+def fit_align(268,7489
+def overlap_score(333,9397
+def overlap_align(341,9605
+def semiglobal_score(406,11461
+def semiglobal_align(414,11672
+def is_overlap(495,14007
+def inexact_repeat_align(505,14298
+def super_sequence(582,16595
+def copy_check(641,18166
+def is_infected(652,18496
+def homo_dist(697,19617
+def get_lids(749,20947
+def get_l2inc(813,22523
+def rna_match(934,25602
+def rna_nibond(941,25758

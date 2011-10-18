@@ -1,0 +1,17 @@
+## SSUIS Workload
+
+## Reference: Streptococcus suis complete genome (2.0Mbp)
+## Query:     1,000,000 36bp reads
+## Match len: 10 (allows for 2 difference)
+
+Genome: ftp://ftp.sanger.ac.uk/pub/pathogens/ss/S_suis.dna
+Reads: ftp://ftp.sanger.ac.uk/pub/PRODUCTION_SOFTWARE/data_sets/suis_solexa/suisp17.tar.bz2
+
+
+
+## GPU Command
+$ mummergpu -l 14 ssuis_ref.fna ssuis_reads.fasta > out.gpu
+
+
+## CPU Command
+$ mummer -l 14 -maxmatch ssuis_ref.fna ssuis_reads.fasta > out.cpu

@@ -1,0 +1,31 @@
+1. Determine when to stop
+
+One way to speed up is to stop the dynamic programming procedure when neccessary. It is quite common that we don't have to compute through the whole matrix once we know the current score of this one won't trascend the best score achieved so far.
+
+One conservative way of doing that is to assume that from now on, all the pairs in the two protein sequences will match with each other and each gives the highest score, i.e. 11.(use 11 times the the length of the longer remainder of the two protein sequences) Thus we take the result according to this scene, and compare it with the current best one. If it is smaller, then we stop computing.
+
+The result largely depend on the data. To be specific, the order of protein sequences in the database. If we meet the one with highest score (or at least relatively high score) in the very beginning, we can spare a tremendous amount of time for computation. In practise, I did observed this trend in the community prokaryote.
+
+*This method is implemented in hw2.cpp. Set pruning_level to 1 will fire it.
+
+Note that the method above is way too conservative. In fact we can use the average value of high scores (Here I take the assumption that it is 7, which is my favourite integer smaller than 10).
+
+*This method is implemented in hw2.cpp. Set pruning_level to 2 will fire it.
+
+2. SIMD approach
+
+The problem we are solving is almost a perfect SIMD problem. Since each individual dynamic programming procedure is hard to be multithreaded, we then focus on how to accomplish each pairwise local alignment simutaneously.
+
+I implemented the method using nVidia's CUDA archietecture. Only the score somputing part runs on GPU, the rest should be the same as the CPU version. One big problem of using GPU is memory. We both suffer from the size of GPU memory and the transfer overhead between GPU memory and main memory.
+
+Notice that only two arrays each of length query are needed. This is because the new value only depends on the four other values (one of which is zero, and the rest 3 are within the current row and the previous row in the 'matrix'). We can use the shared memory which is quite fast for memory manipulation to store the matrices and constant memory to keep the BLOSUM62 score matrix.
+
+There are several nice reasons after applying this SIMD method. First, the size of proteins in the data size does not vary wildly. Thus the skewness of data will not hurt the performance that much. Second, since we are using the same sized 'matrix' for every pairwise alignment, we can easily decide how many thread per block should be used.
+
+
+3. Suffix tree
+
+The interesting part of each optimal result is that the alignment almost always consists of several short exact match subsequences (usually of length 2-5). This gives a hint that if the two protein sequences have some short exact matches, it may leads to a good score.
+
+Exact pattern matching can be achieved using suffix tree. Building the suffix tree for each protein sequence in the data base is linear time. We first check the number of exact matches in for each substring of the query protein sequence towards each suffix tree in the data base, and then only run local alignment for those with high number of exact matches. ( it reminds me a little bit of bleu score, which is used for judging the quality of machine translation )
+

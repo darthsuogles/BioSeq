@@ -1,0 +1,759 @@
+
+Makefile,1269
+all:all2,1
+.SUFFIXES 3,22
+CUDA_INSTALL_PATH 8,188
+NVCC 11,238
+CXX 12,283
+CC 13,312
+LINK 14,331
+STATIC_LIB 17,385
+CUFILES	19,457
+CCFILES	21,529
+SRCDIR     ?=SRCDIR     ?30,793
+ROOTDIR    ?=ROOTDIR    ?31,808
+ROOTBINDIR ?=ROOTBINDIR ?32,825
+BINDIR     ?=BINDIR     ?33,854
+ROOTOBJDIR ?=ROOTOBJDIR ?34,882
+LIBDIR 35,911
+BINNAME    ?=BINNAME    ?36,940
+INCLUDES  +=INCLUDES  +37,964
+LIB 38,1013
+CXXWARN_FLAGS 41,1105
+CWARN_FLAGS 56,1329
+NVCCFLAGS 64,1493
+CXXFLAGS 65,1507
+CFLAGS 66,1537
+COMMONFLAGS ?=COMMONFLAGS ?69,1581
+COMMONFLAGS +=COMMONFLAGS +70,1597
+NVCCFLAGS +=NVCCFLAGS +92,1987
+NVCCFLAGS +=NVCCFLAGS +95,2048
+CXXFLAGS  +=CXXFLAGS  +96,2076
+CFLAGS    +=CFLAGS    +97,2104
+OBJDIR 99,2133
+$(OBJDIR)/%.c_o $(OBJDIR)/%.c_o102,2190
+$(OBJDIR)/%.cpp_o $(OBJDIR)/%.cpp_o106,2274
+$(OBJDIR)/%.cu_o $(OBJDIR)/%.cu_o110,2363
+%.cubin 114,2442
+%.ptx 118,2556
+makedirectories:makedirectories121,2660
+LIBOBJS=126,2754
+$(LIBDIR)/libmummergpu$(LIBSUFFIX).a:$(LIBDIR)/libmummergpu$(LIBSUFFIX).a132,2901
+BINOBJS=135,2972
+$(BINDIR)/$(BINSUBDIR)/mummergpu:$(BINDIR)/$(BINSUBDIR)/mummergpu138,3019
+clean:clean154,3764
+really-clean:really-clean160,3894
+mummergpu:mummergpu165,3977
+cubin:cubin167,4022
+ptx:ptx169,4046
+
+PoolMalloc.cpp,574
+static const size_t POOLBLOCKSIZE 7,112
+#define DIE(10,195
+#define DIEM(17,540
+#define DIENULL(20,636
+#define MALLOC(24,745
+#define NEW(27,854
+struct PoolNode_t32,918
+  char *block;PoolNode_t::block34,938
+  size_t offset;PoolNode_t::offset35,953
+  size_t remaining;PoolNode_t::remaining36,970
+  size_t size;PoolNode_t::size37,990
+  PoolNode_t *next;PoolNode_t::next39,1008
+PoolMalloc_t::PoolMalloc_t(46,1196
+PoolMalloc_t::~PoolMalloc_t(53,1329
+void PoolMalloc_t::pfree(60,1457
+void * PoolMalloc_t::pmalloc(81,1878
+char * PoolMalloc_t::pstrdup(112,2667
+
+PoolMalloc.hh,106
+#define POOLMALLOC_HH11,289
+class PoolMalloc_t27,754
+  PoolNode_t *head_m;PoolMalloc_t::head_m48,1152
+
+common.cu,1979
+#define COMMON_CU__ 2,20
+const int basecount 4,75
+#define QRYTEX 13,282
+#define COALESCED_QUERIES 17,333
+#define REFTEX 22,408
+#define REORDER_REF 26,453
+#define TREETEX 31,518
+#define NODETEX 35,557
+#define CHILDTEX 36,575
+#define NODETEX 38,600
+#define CHILDTEX 39,618
+#define MERGETEX 51,769
+#define REORDER_TREE 55,817
+#define RENUMBER_TREE 60,897
+#define TWO_LEVEL_NODE_TREE 77,1503
+#define TWO_LEVEL_CHILD_TREE 81,1570
+#define TREE_ACCESS_HISTOGRAM 109,2357
+struct TextureAddress 112,2401
+        unsigned int data;114,2437
+            unsigned short x;118,2507
+            unsigned short y;119,2561
+            unsigned int x;121,2621
+struct PixelOfNode128,2751
+    uint4 data;132,2784
+      unsigned char parent[parent135,2817
+      unsigned char suffix[suffix136,2848
+      unsigned char start 138,2880
+      unsigned char end 139,2911
+      unsigned char depth 140,2942
+      unsigned char pad;142,2974
+struct PixelOfChildren148,3081
+    uint4 data;152,3118
+        unsigned char a[a158,3172
+        unsigned char c[c159,3200
+        unsigned char g[g160,3228
+        unsigned char t[t161,3256
+        unsigned char d[d162,3284
+        char leafchar;164,3313
+        unsigned char leafid 169,3373
+        unsigned char pad 170,3407
+        char leafchar0;171,3439
+typedef struct MatchInfo177,3488
+  unsigned int resultsoffset;179,3515
+  unsigned int queryid;180,3545
+  TextureAddress matchnode;181,3569
+  unsigned int numLeaves;182,3597
+  unsigned short edgematch;183,3623
+  unsigned short qrystartpos;184,3651
+} MatchInfo;185,3681
+typedef struct Alignment187,3695
+  int left_in_ref;189,3722
+  unsigned short matchlen;190,3741
+} Alignment;191,3768
+static const int MAX_TEXTURE_DIMENSION 195,3784
+static const int MAX_GRID_DIMENSION 196,3831
+static const int MAX_QUERY_LEN 197,3876
+#define FORWARD 199,3916
+#define REVERSE 200,3941
+#define FRMASK 201,3966
+#define FRUMASK 202,3991
+#define MK3(203,4016
+
+mummergpu.cu,2037
+int USE_PRINT_KERNEL 23,386
+#define BREATHING_ROOM 25,413
+#define BASES_PER_TREE_PAGE 26,455
+#define BLOCKSIZE 28,529
+unsigned int cuda_calls 29,551
+void trap_dbg(30,580
+#define CUDA_SAFE_CALL(35,632
+#  define CU_SAFE_CALL_NO_SYNC(45,1201
+#  define CUT_DEVICE_INIT_DRV(53,1694
+unsigned int num_bind_tex_calls 78,3524
+#define BIND_TEX(79,3561
+#define BIND_TEX_ARRAY(84,3739
+#define CUDA_MALLOC(89,3909
+#define CUDA_MALLOC_PITCH(94,4049
+#define CUDA_MALLOC_ARRAY(99,4230
+char *  createTimer(174,6613
+void startTimer(181,6777
+void stopTimer(186,6869
+float getTimerValue(191,6958
+void deleteTimer(207,7334
+int createReference(213,7403
+int destroyReference(231,7779
+int createQuerySet(252,8133
+int destroyQuerySet(270,8449
+void printStringForError(280,8569
+int createMatchContext(286,8623
+int destroyMatchContext(319,9688
+void buildReferenceTexture(327,9840
+void boardMemory(460,13823
+void loadReferenceTexture(473,14112
+void unloadReferenceString(567,17234
+void unloadReferenceTree(582,17532
+void loadReference(641,18877
+void dumpQueryBlockInfo(897,28801
+void loadQueries(904,28965
+void unloadQueries(974,31624
+inline int match_coord_addrs(992,32138
+void buildCoordOffsetArray(1000,32435
+void loadResultBuffer(1052,34086
+void unloadResultBuffer(1124,36414
+void transferResultsFromDevice(1134,36684
+char numbuffer[numbuffer1200,39013
+MatchCoord* coordForQueryChar(1202,39034
+void coordsToPrintBuffers(1215,39475
+void runPrintKernel(1341,43102
+void runPrintOnCPU(1459,46661
+void getExactAlignments(1507,47938
+int getQueryBlock(1675,52741
+void destroyQueryBlock(1721,54067
+void resetStats(1741,54479
+void writeStatisticsFile(1779,55460
+void matchOnCPU(1905,59245
+void matchOnGPU(1935,60372
+void getMatchResults(1998,62079
+void matchQueryBlockToReferencePage(2004,62187
+int matchSubset(2039,62967
+int getFreeDeviceMemory(2073,63652
+int matchQueriesToReferencePage(2096,64236
+void initReferencePages(2127,65030
+int streamReferenceAgainstQueries(2168,66795
+int matchQueries(2222,68700
+
+mummergpu.h,3372
+  struct QuerySet 6,56
+    int qfile;7,76
+    char* h_tex_array;9,96
+    char* d_tex_array;10,119
+    int* d_addrs_tex_array;11,142
+    int* h_addrs_tex_array;12,170
+    int* h_lengths_array;13,198
+    int* d_lengths_array;14,224
+    char** h_names;16,251
+    unsigned int count;18,276
+    size_t texlen;19,300
+    size_t bytes_on_board;22,378
+  struct AuxiliaryNodeData 26,412
+    int length;27,441
+    int numleaves;28,457
+    TextureAddress printParent;29,476
+  struct Reference 33,515
+    char* str;35,563
+    size_t len;36,578
+    float t_load_from_disk;37,594
+    unsigned int pitch;39,627
+    void* d_ref_array;40,651
+    char* h_ref_array;41,688
+    void* d_node_tex_array;44,752
+    void* h_node_tex_array;45,837
+    void* d_children_tex_array;47,895
+    void* h_children_tex_array;48,979
+    void* d_parent_tex_array;50,1031
+    void* h_parent_tex_array;51,1074
+    int* d_node_hist;54,1152
+    int* h_node_hist;55,1174
+    int* d_child_hist;57,1198
+    int* h_child_hist;58,1221
+    unsigned int tex_node_height;61,1252
+    unsigned int tex_children_height;62,1286
+    unsigned int tex_width;63,1324
+    size_t bytes_on_board;66,1411
+    AuxiliaryNodeData* aux_data;68,1443
+    int num_nodes;69,1476
+  struct MatchCoord{MatchCoord79,1676
+      int2 data;82,1714
+	TextureAddress node;85,1752
+	int edge_match_length;86,1788
+  struct MatchResults{MatchResults91,1886
+    MatchCoord* d_match_coords;94,2035
+    MatchCoord* h_match_coords;95,2067
+    unsigned int numCoords;97,2104
+    int* d_coord_tex_array;102,2290
+    int* h_coord_tex_array;105,2326
+    size_t bytes_on_board;108,2409
+  struct Statistics 112,2472
+    float t_end_to_end;113,2494
+    float t_match_kernel;114,2518
+    float t_print_kernel;115,2544
+    float t_results_to_disk;116,2570
+    float t_queries_to_board;117,2599
+    float t_match_coords_to_board;118,2629
+    float t_match_coords_from_board;119,2664
+    float t_tree_to_board;120,2701
+    float t_ref_str_to_board;121,2728
+    float t_queries_from_disk;122,2758
+    float t_ref_from_disk;123,2789
+    float t_tree_construction;124,2816
+    float t_tree_reorder;125,2847
+    float t_tree_flatten;126,2873
+    float t_reorder_ref_str;127,2899
+    float t_build_coord_offsets;128,2928
+    float t_coords_to_buffers;129,2961
+    float bp_avg_query_length;130,2992
+    int* node_hist;132,3049
+    int* child_hist;133,3069
+    int node_hist_size;134,3090
+    int child_hist_size;135,3114
+  struct MatchContext 139,3152
+    char* full_ref;140,3176
+    size_t full_ref_len;141,3196
+    Reference* ref;143,3226
+    QuerySet* queries;144,3246
+    MatchResults results;145,3269
+    bool on_cpu;147,3300
+    int min_match_length;149,3322
+    bool reverse;151,3353
+    bool forwardreverse;152,3371
+    bool forwardcoordinates;153,3396
+    bool show_query_length;154,3425
+    bool maxmatch;155,3453
+    char* stats_file;157,3477
+    char* dotfilename;158,3499
+    char* texfilename;159,3522
+    Statistics statistics;160,3545
+  struct ReferencePage 164,3579
+    int begin;165,3604
+    int end;166,3619
+    int shadow_left;167,3632
+    int shadow_right;168,3653
+    MatchResults results;169,3675
+    unsigned int id;170,3701
+    Reference ref;171,3722
+  struct Timer_t205,4487
+    struct timeval start_m;207,4508
+    struct timeval end_m;208,4536
+
+mummergpu.h~,3314
+struct QuerySet 6,56
+    int qfile;7,74
+    char* h_tex_array;9,94
+    char* d_tex_array;10,117
+    int* d_addrs_tex_array;11,140
+    int* h_addrs_tex_array;12,168
+    int* h_lengths_array;13,196
+    int* d_lengths_array;14,222
+    char** h_names;16,249
+    unsigned int count;18,274
+    size_t texlen;19,298
+    size_t bytes_on_board;22,376
+struct AuxiliaryNodeData 26,408
+    int length;27,435
+    int numleaves;28,451
+    TextureAddress printParent;29,470
+struct Reference 33,507
+    char* str;35,553
+    size_t len;36,568
+	float t_load_from_disk;37,584
+    unsigned int pitch;39,614
+    void* d_ref_array;40,638
+    char* h_ref_array;41,675
+    void* d_node_tex_array;44,739
+    void* h_node_tex_array;45,824
+    void* d_children_tex_array;47,882
+    void* h_children_tex_array;48,966
+    void* d_parent_tex_array;50,1018
+    void* h_parent_tex_array;51,1061
+	int* d_node_hist;54,1139
+	int* h_node_hist;55,1158
+	int* d_child_hist;57,1179
+	int* h_child_hist;58,1199
+    unsigned int tex_node_height;61,1227
+    unsigned int tex_children_height;62,1261
+    unsigned int tex_width;63,1299
+    size_t bytes_on_board;66,1386
+    AuxiliaryNodeData* aux_data;68,1418
+    int num_nodes;69,1451
+struct MatchCoord{MatchCoord79,1643
+		int2 data;82,1673
+			TextureAddress node;85,1702
+   			int edge_match_length;86,1740
+struct MatchResults{MatchResults91,1834
+    MatchCoord* d_match_coords;94,1981
+    MatchCoord* h_match_coords;95,2013
+    unsigned int numCoords;97,2050
+	int* d_coord_tex_array;102,2228
+    int* h_coord_tex_array;105,2261
+    size_t bytes_on_board;108,2344
+struct Statistics 112,2403
+    float t_end_to_end;113,2423
+    float t_match_kernel;114,2447
+    float t_print_kernel;115,2473
+    float t_results_to_disk;116,2499
+    float t_queries_to_board;117,2528
+    float t_match_coords_to_board;118,2558
+    float t_match_coords_from_board;119,2593
+    float t_tree_to_board;120,2630
+    float t_ref_str_to_board;121,2657
+    float t_queries_from_disk;122,2687
+    float t_ref_from_disk;123,2718
+    float t_tree_construction;124,2745
+    float t_tree_reorder;125,2776
+    float t_tree_flatten;126,2802
+	float t_reorder_ref_str;127,2828
+	float t_build_coord_offsets;128,2854
+	float t_coords_to_buffers;129,2884
+    float bp_avg_query_length;130,2912
+	int* node_hist;132,2969
+	int* child_hist;133,2986
+	int node_hist_size;134,3004
+    int child_hist_size;135,3025
+struct MatchContext 139,3061
+    char* full_ref;140,3083
+    size_t full_ref_len;141,3103
+    Reference* ref;143,3133
+    QuerySet* queries;144,3153
+    MatchResults results;145,3176
+    bool on_cpu;147,3207
+    int min_match_length;149,3229
+    bool reverse;151,3260
+    bool forwardreverse;152,3278
+    bool forwardcoordinates;153,3303
+    bool show_query_length;154,3332
+    bool maxmatch;155,3360
+    char* stats_file;157,3384
+	char* dotfilename;158,3406
+    char* texfilename;159,3426
+    Statistics statistics;160,3449
+struct ReferencePage 164,3481
+    int begin;165,3504
+    int end;166,3519
+    int shadow_left;167,3532
+    int shadow_right;168,3553
+    MatchResults results;169,3575
+    unsigned int id;170,3601
+    Reference ref;171,3622
+struct Timer_t205,4593
+  struct timeval start_m;207,4610
+  struct timeval end_m;208,4636
+
+mummergpu_gold.cpp,1409
+#define ulong4 6,60
+#define int2 7,84
+#define uint4 8,105
+static const int maxdim 19,318
+#define __VERBOSE___no 21,351
+#define XPRINTF(24,395
+#define XPRINTF(26,443
+#define WARP_SIZE 29,486
+#define fNID 32,537
+#define NID(33,558
+#define GOROOT(34,623
+#define fNID 37,714
+#define NID(38,732
+#define GOROOT(39,755
+#define GETQCHAR(43,794
+#define RESULT_SPAN 44,835
+#define MATCH_BASE(45,857
+#define GETRCHAR(47,966
+#define GETNODE(54,1054
+#define GETNODEHIST(55,1152
+#define GETCHILDREN(56,1261
+#define GETCHILDRENHIST(57,1363
+#define GETNODE(59,1482
+#define GETNODEHIST(60,1568
+#define GETCHILDREN(61,1654
+#define GETCHILDRENHIST(62,1744
+#define GETNODEHIST(68,1875
+#define GETNODE(69,1948
+#define GETNODEHIST(71,2022
+#define GETNODE(72,2084
+#define GETCHILDRENHIST(77,2181
+#define GETCHILDREN(78,2270
+#define GETCHILDRENHIST(80,2358
+#define GETCHILDREN(81,2434
+#define SHIFT_QUERIES(86,2526
+#define SET_RESULT(87,2585
+char getRef(92,2735
+union SingleNode98,2797
+	PixelOfNode node;SingleNode::node100,2816
+	PixelOfChildren children;SingleNode::children101,2835
+PixelOfNode getNode(109,2950
+PixelOfChildren getChildren(131,3428
+SingleNode getMerged(155,3958
+void set_result(238,5383
+void arrayToAddress(258,5860
+inline T min(268,6085
+inline T max(274,6157
+int kernel_gold(279,6208
+inline char rc(591,14746
+rc_kernel_gold(611,15108
+void computeGold(789,19572
+
+mummergpu_kernel.cu,3947
+#define _MUMMERGPU_KERNEL_H_2,29
+#define XPRINTF(9,131
+#define VERBOSE 10,173
+#define XPRINTF(12,197
+#define VERBOSE 13,232
+#define WARP_SIZE 16,258
+#define fNID 19,309
+#define NID(20,330
+#define GOROOT(21,395
+#define fNID 24,486
+#define NID(25,504
+#define GOROOT(26,527
+#define GETQCHAR(30,587
+#define GETQCHAR(32,741
+#define GETQCHAR(34,809
+#define RESULT_SPAN 38,880
+#define MATCH_BASE(39,910
+#define RESULT_SPAN 41,1003
+#define MATCH_BASE(42,1025
+#define GETRCHAR(46,1158
+#define GETRCHAR(48,1204
+#define GETNODE(58,1312
+#define GETNODEHIST(59,1395
+#define GETCHILDREN(60,1489
+#define GETCHILDRENHIST(61,1572
+#define GETNODE(63,1672
+#define GETNODEHIST(64,1775
+#define GETCHILDREN(65,1889
+#define GETCHILDRENHIST(66,1992
+#define GETNODE(71,2132
+#define GETNODEHIST(72,2203
+#define GETCHILDREN(73,2274
+#define GETCHILDRENHIST(74,2345
+#define GETNODE(76,2422
+#define GETNODEHIST(77,2513
+#define GETCHILDREN(78,2604
+#define GETCHILDRENHIST(79,2695
+#define GETNODEHIST(87,2846
+#define GETNODE(88,2922
+#define GETNODEHIST(90,2999
+#define GETNODE(91,3064
+#define GETNODEHIST(95,3168
+#define GETNODE(96,3251
+#define GETNODEHIST(98,3335
+#define GETNODE(99,3407
+#define GETCHILDRENHIST(105,3533
+#define GETCHILDREN(106,3618
+#define GETCHILDRENHIST(108,3703
+#define GETCHILDREN(109,3776
+#define GETCHILDRENHIST(113,3888
+#define GETCHILDREN(114,3987
+#define GETCHILDRENHIST(116,4085
+#define GETCHILDREN(117,4171
+#define SHIFT_QUERIES(125,4292
+#define SHIFT_QUERIES(127,4339
+texture<uint4,uint4131,4423
+texture<uint4, 2, cudaReadModeElementType> nodetex;131,4423
+texture<uint4,uint4132,4475
+texture<uint4, 2, cudaReadModeElementType> childrentex;132,4475
+texture<uint4,uint4134,4537
+texture<uint4, 1, cudaReadModeElementType> nodetex;134,4537
+texture<uint4,uint4135,4589
+texture<uint4, 1, cudaReadModeElementType> childrentex;135,4589
+texture<char,char140,4670
+texture<char, 2, cudaReadModeElementType> reftex;140,4670
+texture<char,char142,4726
+texture<char, 1, cudaReadModeElementType> reftex;142,4726
+texture<char,char145,4784
+texture<char, 1, cudaReadModeElementType> qrytex;145,4784
+ 		int2 data;151,4882
+ 			int node;154,4910
+     		int edge_match_length;155,4952
+struct _PixelOfChildren161,5116
+    uint4 data;165,5154
+        uchar3 a;171,5208
+        uchar3 c;172,5226
+        uchar3 g;173,5244
+        uchar3 t;174,5262
+        uchar3 d;175,5280
+        char leafchar;177,5299
+        uchar3 leafid;182,5359
+        unsigned char pad 183,5382
+        char leafchar0;184,5414
+struct _PixelOfNode191,5536
+    uint4 data;195,5570
+      uchar3 parent;198,5603
+      uchar3 suffix;199,5624
+      uchar3 start;201,5646
+      uchar3 end;202,5666
+      uchar3 depth;203,5684
+      unsigned char pad;205,5705
+#define CHILD_THRESH 211,5771
+__constant__ _PixelOfChildren child_tree_top[child_tree_top212,5796
+#define NODE_THRESH 216,5888
+__constant__ _PixelOfNode node_tree_top[node_tree_top217,5912
+__device__ int addr2id(228,6129
+ __device__ TextureAddress id2addr(254,6681
+#define MKI(287,7372
+__device__ void arrayToAddress(293,7519
+__device__ char getRef(306,7802
+__device__ char rc(336,8294
+__device__ uint4 getNode(353,8585
+__device__ uint4 getChildren(396,9489
+__device__ uint4 getMerged(437,10431
+#define PRINTNODE(535,12157
+#define PRINTNODES(536,12195
+#define PRINTNODE(538,12250
+#define PRINTNODES(539,12295
+#define PRINTNODE(541,12357
+#define PRINTNODES(542,12405
+#define PRINTNODE(544,12465
+#define PRINTNODES(545,12523
+__device__ void printNode(548,12592
+__device__ void printNodes(588,13637
+#define PRINTNODE(608,14003
+#define PRINTNODES(609,14026
+#define SET_RESULT(615,14095
+#define SET_RESULT(617,14177
+#define SET_RESULT(619,14273
+#define SET_RESULT(621,14354
+#define SET_RESULT(626,14457
+__device__ void set_result(636,14622
+mummergpuKernel(678,15620
+mummergpuRCKernel(867,20848
+printKernel(1043,25227
+
+mummergpu_main.cpp,590
+#define int2 5,59
+#define ulong4 6,80
+#define uint4 7,104
+char * OPT_reffilename 10,151
+char * OPT_qryfilename 11,182
+char * OPT_dotfilename 12,213
+char * OPT_texfilename 13,244
+int    OPT_num_reference_pages 14,275
+char * OPT_stats_file 15,311
+int  OPT_match_length 18,360
+bool OPT_reverse 19,388
+bool OPT_forwardreverse 20,414
+bool OPT_forwardcoordinates 21,447
+bool OPT_showQueryLength 22,484
+bool OPT_maxmatch 23,518
+bool OPT_on_cpu 24,545
+bool OPT_stream_queries 25,570
+void printHelp(27,604
+void printUsage(52,1613
+void ParseCommandLine(59,1723
+int main(103,2925
+
+suffix-tree.cpp,5815
+#define ulong4 17,268
+#define uint4 18,292
+#define int2 19,315
+#define MPOOL 22,360
+#define VERIFY 29,462
+#define VERBOSE 30,480
+const bool DEBUG 31,498
+bool FORCEROOT 34,552
+bool DOJUMP 35,576
+bool DOINTERNALSKIP 36,596
+bool DOPHASETRICK 37,624
+int skippedbases 40,665
+int skippedextensions 41,687
+char substrbuffer[substrbuffer43,715
+const char * substr(44,740
+unsigned char b2i(55,978
+class EventTime_t74,1289
+  EventTime_t(EventTime_t::EventTime_t78,1357
+  void start(EventTime_t::start86,1482
+  void stop(EventTime_t::stop93,1577
+  double duration(EventTime_t::duration100,1670
+  std::string str(EventTime_t::str113,2140
+  struct timeval m_start;EventTime_t::m_start135,2467
+  struct timeval m_end;EventTime_t::m_end138,2509
+class SuffixNode143,2567
+  static int s_nodecount;SuffixNode::s_nodecount146,2594
+  void *operator new(SuffixNode::operator new149,2634
+  SuffixNode(SuffixNode::SuffixNode155,2745
+  ~SuffixNode(SuffixNode::~SuffixNode173,3131
+  int id(SuffixNode::id181,3259
+  void setPrintParent(SuffixNode::setPrintParent187,3328
+  bool isLeaf(SuffixNode::isLeaf212,3759
+  const char * str(SuffixNode::str222,3897
+  int len(SuffixNode::len227,3999
+  int depth(SuffixNode::depth240,4159
+  ostream & printLabel(SuffixNode::printLabel245,4201
+  ostream & printNodeLabel(SuffixNode::printNodeLabel264,4526
+  ostream & printEdgeLabel(SuffixNode::printEdgeLabel270,4611
+  int setNumLeaves(SuffixNode::setNumLeaves278,4856
+  int  m_start;SuffixNode::m_start300,5153
+  int  m_end;SuffixNode::m_end301,5216
+  int  m_nodeid;SuffixNode::m_nodeid302,5277
+  int  m_leafid;SuffixNode::m_leafid303,5341
+  int  m_depth;SuffixNode::m_depth304,5442
+  int  m_numleaves;SuffixNode::m_numleaves305,5504
+  SuffixNode * m_children SuffixNode::m_children306,5573
+  SuffixNode * m_parent;SuffixNode::m_parent307,5631
+  SuffixNode * m_suffix;SuffixNode::m_suffix308,5686
+  SuffixNode * m_printParent;SuffixNode::m_printParent309,5740
+  string m_pathstring;SuffixNode::m_pathstring312,5819
+ostream & operator<< 318,5929
+class SuffixTree325,6070
+  SuffixTree(SuffixTree::SuffixTree328,6097
+  ~SuffixTree(SuffixTree::~SuffixTree339,6363
+  SuffixNode * m_root;SuffixTree::m_root347,6431
+  const char * m_string;SuffixTree::m_string348,6454
+  int m_strlen;SuffixTree::m_strlen349,6479
+  PoolMalloc_t m_pool;SuffixTree::m_pool352,6509
+  void printNodeDot(SuffixTree::printNodeDot356,6566
+  void printDot(SuffixTree::printDot404,8001
+  void printNodeText(SuffixTree::printNodeText423,8559
+  void printText(SuffixTree::printText441,8968
+  void printTreeSorted(SuffixTree::printTreeSorted450,9222
+  void printTreeFlat(SuffixTree::printTreeFlat469,9646
+  void printNodeFlat(SuffixTree::printNodeFlat476,9857
+  void setNodePath(SuffixTree::setNodePath501,10536
+  int verifyNodeSuffixLinks(SuffixTree::verifyNodeSuffixLinks519,10941
+  void verifySuffixLinks(SuffixTree::verifySuffixLinks562,11989
+  void buildUkkonen(SuffixTree::buildUkkonen577,12343
+SuffixTree * gtree 1035,27227
+void buildUkkonenSuffixTree(1037,27255
+static const int TEXBLOCKSIZE 1043,27364
+#define LOW3(1045,27401
+#define MID3(1046,27428
+#define HI3(1047,27462
+#define HALF_TEXTURE_DIMENSION 1049,27500
+inline TextureAddress id2addr(1051,27537
+inline unsigned int addr2id(1087,28259
+void writeAddress(1114,28768
+TextureAddress arrayToAddress(1127,29053
+void buildNodeTexture(1143,29300
+void buildSuffixTreeTexture(1290,33526
+void printTreeTexture(1386,36418
+void renumberTree(1452,38116
+void createTreeTexture(1527,39961
+void getReferenceString(1608,42305
+inline void addChar(1673,43507
+inline size_t bytesNeededOnGPU(1690,43841
+#define WARP_SIZE 1699,44088
+    void getQueriesTexture(1704,44168
+struct pathblock2088,57335
+    TextureAddress node_addr;pathblock::node_addr2090,57354
+    int string_depth;pathblock::string_depth2091,57384
+#define __USE_BUFFERED_IO__ 2095,57411
+static const size_t output_buf_limit 2097,57441
+char output_buf[output_buf2098,57489
+size_t bytes_written 2101,57612
+int addToBuffer(2103,57639
+void flushOutput(2125,58218
+inline char *itoa(itoa2139,58577
+int addMatchToBuffer(2157,58801
+#define NODE_LENGTH(2183,59480
+#define NODE_PRINTPARENT(2184,59539
+#define NODE_NUMLEAVES(2185,59603
+#define GETNODE(2188,59683
+#define GETCHILDREN(2189,59825
+#define PADDR(2190,59967
+#define GETCHILDREN(2192,60039
+#define GETNODE(2193,60141
+#define PADDR(2194,60243
+char * getMerged(2199,60308
+#define SDEPTH(2228,60865
+#define PARENT(2229,60952
+#define LEAFCHAR(2231,61041
+#define LEAFID(2232,61131
+#define CHILDA(2233,61219
+#define CHILDC(2234,61302
+#define CHILDG(2235,61385
+#define CHILDT(2236,61468
+#define CHILDD(2237,61551
+#define SDEPTH(2241,61655
+#define PARENT(2242,61711
+#define LEAFCHAR(2244,61769
+#define LEAFID(2245,61832
+#define CHILDA(2246,61893
+#define CHILDC(2247,61949
+#define CHILDG(2248,62005
+#define CHILDT(2249,62061
+#define CHILDD(2250,62117
+char buf[buf2256,62196
+void printNodeAlignments(2258,62212
+int expectedvisit 2322,64266
+int leavesvisited 2323,64289
+int leavesprinted 2324,64312
+pathblock path[path2328,64428
+char RC(2330,64451
+void printAlignmentsOld(2345,64650
+inline char getQueryChar(2403,66085
+void printAlignments(2417,66443
+int lookupNumLeaves(2660,72979
+struct ExactMatch2669,73215
+	ExactMatch(ExactMatch::ExactMatch2671,73235
+	unsigned int left_in_ref;ExactMatch::left_in_ref2674,73360
+	unsigned short qrystartpos;ExactMatch::qrystartpos2675,73387
+	unsigned short matchlen;ExactMatch::matchlen2676,73416
+struct EMSortByRefPos2679,73446
+	bool operator()(EMSortByRefPos::operator()2681,73470
+static const int MAX_MISMATCH 2694,73753
+void mapQueryEndToEnd(2695,73788
+void mapQueriesEndToEnd(2772,76212

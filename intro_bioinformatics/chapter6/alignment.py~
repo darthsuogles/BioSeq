@@ -1,0 +1,649 @@
+# implementation of alignment problems described in lecture notes
+# enable debug mode will show the computation record table and trace table
+debug = True
+import copy
+from sys import *
+
+
+def score(ch1, ch2):
+    if ch1 == ch2:
+        return 2
+    else:
+        return -1
+
+def score_gap(ch1, ch2):
+    if ch1 == ch2:
+        return 2
+    elif ch1=='-' or ch2=='-':
+        return 0
+    else:
+        return -1
+
+# give all possible alignment result
+# x, y are given as the stop coordinate on the trace table
+def recover(trace, x, y, S, T, buff):
+    if trace[x][y] == ['e']:
+        print buff[0]
+        print buff[1]
+        print '---------------------------------------\n'
+        return
+
+    for elem in trace[x][y]:
+        if elem == 'l':
+            buff[0] = ['-'] + buff[0]
+            buff[1] = [T[y-1]] + buff[1]
+            recover(trace, x, y-1, S, T, buff)
+            buff[0] = buff[0][1:]
+            buff[1] = buff[1][1:]
+        elif elem == 'u':
+            buff[0] = [S[x-1]] + buff[0]
+            buff[1] = ['-'] + buff[1]
+            recover(trace, x-1, y, S, T, buff)
+            buff[0] = buff[0][1:]
+            buff[1] = buff[1][1:]
+        else:
+            buff[0] = [S[x-1]] + buff[0]
+            buff[1] = [T[y-1]] + buff[1]
+            recover(trace, x-1, y-1, S, T, buff)
+            buff[0] = buff[0][1:]
+            buff[1] = buff[1][1:]
+
+def result(trace, S, T):
+    x = len(trace)-1
+    y = len(trace[0])-1
+    print '\n-----------result as follows-----------\n'
+    recover(trace, x, y, S, T, [[], []])
+
+
+# global alignment
+def g_align(S, T):
+    # table records values
+    # trace records results
+    table = []
+    trace = []
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            #trace[i][j] = []
+            if i==0 and j==0:
+                table[i][j] = 0
+                trace[i][j] += ['e']
+            elif i==0:
+                table[i][j] = table[i][j-1]-1
+                trace[i][j] += ['l']
+            elif j==0:
+                table[i][j] = table[i-1][j]-1
+                trace[i][j] += ['u']
+            else:
+                # take the max of
+                vu = table[i-1][j] + score(S[i-1], '-')
+                vl = table[i][j-1] + score('-', T[j-1])
+                vd = table[i-1][j-1] + score(S[i-1], T[j-1])
+                table[i][j] = max(max(vl, vu), max(vu, vd))
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for i in range(0, len(S)+1):
+            print table[i]
+        for i in range(0, len(S)+1):
+            print trace[i]
+
+    # display the result
+    result(trace, S, T)
+
+
+# Smith-Waterman local alignment
+def l_align(S, T):
+    table = []
+    trace = []
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    best_score = -1
+    best_i = -1
+    best_j = -1
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0 or j == 0:
+                table[i][j] = 0
+                trace[i][j] += ['e']
+            else:
+                vu = table[i-1][j] + score(S[i-1], '-')
+                vl = table[i][j-1] + score('-', T[j-1])
+                vd = table[i-1][j-1] + score(S[i-1], T[j-1])
+                v0 = 0
+
+                table[i][j] = max( max(vu, vl), max(v0, vd) )
+
+                if table[i][j] > best_score:
+                    best_score = table[i][j]
+                    best_i = i
+                    best_j = j
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+                if table[i][j] == v0:
+                    trace[i][j] += ['e']
+
+    if debug:
+        for entry in table:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    recover(trace, best_i, best_j, S, T, [[],[]])
+
+
+# global alignment with affine gap penalty
+Wg = 2
+Ws = 1
+infty = 99999
+def g_align_gap(S, T):
+    # initialization
+    V = []
+    trace = []
+    F = []
+    E = []
+    for i in range(0, len(S)+1):
+        V += [[]]
+        trace += [[]]
+        F += [[]]
+        E += [[]]
+        for j in range(0, len(T)+1):
+            V[i] += [0]
+            trace[i] += [[]]
+            F[i] += [0]
+            E[i] += [0]
+
+    # iteration
+    V[0][0] = 0
+    trace[0][0] = ['e']
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0:
+                if j!=0:
+                    V[i][j] = -Wg - i*Ws
+                    trace[i][j] = ['l']
+                    F[i][j] = -infty
+
+            elif j == 0:
+                V[i][j] = -Wg - j*Ws
+                E[i][j] = -infty
+                trace[i][j] = ['u']
+
+            else:
+                # compute the general recurrence
+                G = V[i-1][j-1] + score_gap(S[i-1], T[j-1])
+                vl = F[i][j] = max(F[i-1][j]-Ws, V[i-1][j]-Wg-Ws)
+                vu =  E[i][j] = max(E[i][j-1]-Ws, V[i][j-1]-Wg-Ws)
+                V[i][j] = max(
+                    max(G, F[i][j]),
+                    max(G, E[i][j])
+                    )
+
+                # track the result
+                if V[i][j] == vl:
+                    trace[i][j] += ['l']
+                if V[i][j] == vu:
+                    trace[i][j] += ['u']
+                if V[i][j] == G:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for entry in V:
+            print entry
+        print '\n'
+        for entry in F:
+            print entry
+        print '\n'
+        for entry in E:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    result(trace, S, T)
+
+
+# optimal fitting alignment as presented in blue book p215
+
+# the fitting score for two nuclitides
+def fit_score(ch1, ch2):
+    if ch1 == '-' or ch2 == '-' or ch1 != ch2:
+        return -1
+    else:
+        return 1
+
+# the alignment tool for computing the result
+# all valid alignment will be displayed
+def fit_align(S, T):
+    table = []
+    trace = []
+
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0 or j == 0:
+                if i == 0 and j == 0:
+                    table[i][j] = 0
+                    trace[i][j] += ['e']
+                else:
+                    if i == 0: # matching nothing with prefix of T
+                        table[i][j] = -7e21
+                        trace[i][j] += ['e']
+                    else: # matching prefix of i to nothing
+                        table[i][j] = 0
+                        trace[i][j] += ['e']
+
+            else:
+                vu = table[i-1][j] + fit_score(S[i-1], '-')
+                vl = table[i][j-1] + fit_score('-', T[j-1])
+                vd = table[i-1][j-1] + fit_score(S[i-1], T[j-1])
+
+                table[i][j] = max( max(vu, vl), vd )
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for entry in table:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    best_score = -1
+    best_i = -1
+    for i in range(0, len(S)+1):
+        this_score = table[i][len(T)]
+        if this_score > best_score:
+            best_score = this_score
+            best_i = i
+    print 'Fitting Alignment for the two sequences:'
+    print 'S:', S
+    print 'T:', T
+    print 'best alignment score:', best_score
+
+    recover(trace, best_i, len(T), S, T, [[],[]])
+
+
+# overlapping alignment as presented in blue book p215
+
+# the overlapping score for two nuclitides
+def overlap_score(ch1, ch2):
+    if ch1 == '-' or ch2 == '-' or ch1 != ch2:
+        return -1
+    else:
+        return 2
+
+# the alignment tool for computing the result
+# all valid alignment will be displayed
+def overlap_align(S, T):
+    table = []
+    trace = []
+
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0 or j == 0:
+                if i == 0 and j == 0:
+                    table[i][j] = 0
+                    trace[i][j] += ['e']
+                else:
+                    if i == 0:
+                        table[i][j] = -7e21
+                        trace[i][j] += ['e']
+                    else:
+                        table[i][j] = 0
+                        trace[i][j] += ['e']
+
+            else:
+                vu = table[i-1][j] + overlap_score(S[i-1], '-')
+                vl = table[i][j-1] + overlap_score('-', T[j-1])
+                vd = table[i-1][j-1] + overlap_score(S[i-1], T[j-1])
+
+                table[i][j] = max( max(vu, vl), vd )
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for entry in table:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    best_score = -1
+    best_j = -1
+    for j in range(0, len(T)+1):
+        this_score = table[len(S)][j]
+        if this_score > best_score:
+            best_score = this_score
+            best_j = j
+    print 'Overlapping Alignment for the two sequences:'
+    print 'S:', S
+    print 'T:', T
+    print 'best alignment score:', best_score
+
+    recover(trace, len(S), best_j, S, T, [[],[]])
+
+
+# semiglobal alignment as presented in blue book p216
+
+# the semiglobal score for two nuclitides
+def semiglobal_score(ch1, ch2):
+    if ch1 == '-' or ch2 == '-' or ch1 != ch2:
+        return -1
+    else:
+        return 1
+
+# the alignment tool for computing the result
+# all valid alignment will be displayed
+def semiglobal_align(S, T):
+    table = []
+    trace = []
+
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0 or j == 0:
+                if i == 0 and j == 0:
+                    table[i][j] = 0
+                    trace[i][j] += ['e']
+                else:
+                    if i == 0:
+                        table[i][j] = 0
+                        trace[i][j] += ['l']
+                    else:
+                        table[i][j] = 0
+                        trace[i][j] += ['u']
+
+            else:
+                vu = table[i-1][j] + semiglobal_score(S[i-1], '-')
+                vl = table[i][j-1] + semiglobal_score('-', T[j-1])
+                vd = table[i-1][j-1] + semiglobal_score(S[i-1], T[j-1])
+
+                table[i][j] = max( max(vu, vl), vd )
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for entry in table:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    best_jscore = -1
+    best_j = -1
+    best_iscore = -1
+    best_i = -1
+    for i in range(0, len(S)+1):
+        this_score = table[i][len(T)]
+        if this_score > best_iscore:
+            best_iscore = this_score
+            best_i = i
+    for j in range(0, len(T)+1):
+        this_score = table[len(S)][j]
+        if this_score > best_jscore:
+            best_jscore = this_score
+            best_j = j
+    best_score = max(best_jscore, best_iscore)
+
+    print 'Semiglobal Alignment for the two sequences:'
+    print 'S:', S
+    print 'T:', T
+    print 'best alignment score:', best_score
+
+    if best_score == best_iscore:
+        for i in range(best_i+1, len(S)):
+            trace[i][len(T)] = ['u']
+        recover(trace, len(S), len(T), S, T, [[],[]])
+    if best_score == best_jscore:
+        for j in range(best_j+1, len(T)):
+            trace[len(S)][j] = ['l']
+        recover(trace, len(S), len(T), S, T, [[],[]])
+
+
+
+
+# inexact repeat alignment
+def is_overlap(start_list, end):
+    tmp = []
+    for start in start_list:
+        if (start[0] > end[1] or start[1] > end[0])\
+            and start not in tmp:
+            tmp += [start]
+    return tmp
+
+# the alignment tool for computing the result
+# all valid alignment will be displayed
+def inexact_repeat_align(S):
+    table = []
+    trace = []
+    start_pos = [[[]]*(len(S)+1)]*(len(S)+1)
+
+    best_score = -7e14
+    best_j = -1
+    best_i = -1
+
+    # initialize the tables
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(S)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(S)+1):
+            if i == 0 or j == 0:
+                table[i][j] = 0
+                trace[i][j] += ['e']
+                start_pos[i][j] = [[i,j]]
+
+            else:
+                sp_l = is_overlap(start_pos[i][j-1], [i,j])
+                sp_u = is_overlap(start_pos[i-1][j], [i,j])
+                sp_d = is_overlap(start_pos[i-1][j-1], [i,j])
+                vu = (table[i-1][j] + score(S[i-1], '-'))\
+                     if sp_u != [] else -7e14
+                vl = (table[i][j-1] + score('-', S[j-1]))\
+                     if sp_l != [] else -7e14
+                vd = (table[i-1][j-1] + score(S[i-1], S[j-1]))\
+                     if sp_d !=[] else -7e14
+
+                table[i][j] = max( max(vu, vl), max(vd, 0) )
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                    start_pos[i][j] += sp_l
+
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                    start_pos[i][j] += sp_u
+
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+                    start_pos[i][j] += sp_d
+
+                if table[i][j] == 0:
+                    trace[i][j] += ['e']
+                    start_pos[i][j] += [[i,j]]
+
+            this_score = table[i][j]
+            if this_score > best_score:
+                best_score = this_score
+                best_i = i
+                best_j = j
+        print start_pos[i]
+
+    if debug:
+        for entry in table:
+            print entry
+        print
+        for entry in trace:
+            print entry
+        print
+
+    print 'Inexact Repeat problem for the two sequences:'
+    print 'S:', S
+    print 'best alignment score:', best_score
+
+    recover(trace, best_i, best_j, S, S, [[],[]])
+
+
+# shortest supersequence problem presented in blue book p217
+# the alignment tool for computing the result
+# all valid alignment will be displayed
+def super_sequence(S, T):
+    table = []
+    trace = []
+
+    for i in range(0, len(S)+1):
+        table += [[]]
+        trace += [[]]
+        for j in range(0, len(T)+1):
+            table[i] += [0]
+            trace[i] += [[]]
+
+    for i in range(0, len(S)+1):
+        for j in range(0, len(T)+1):
+            if i == 0 or j == 0:
+                if i == 0 and j == 0:
+                    table[i][j] = 0
+                    trace[i][j] += ['e']
+                else:
+                    if i == 0:
+                        table[i][j] = j
+                        trace[i][j] += ['l']
+                    else:
+                        table[i][j] = i
+                        trace[i][j] += ['u']
+
+            else:
+                vu = table[i-1][j] + 1
+                vl = table[i][j-1] + 1
+                vd = 7e21
+                if S[i-1] == T[j-1]:
+                    vd = table[i-1][j-1] + 1
+
+                table[i][j] = min( min(vu, vl), vd )
+
+                if table[i][j] == vl:
+                    trace[i][j] += ['l']
+                if table[i][j] == vu:
+                    trace[i][j] += ['u']
+                if table[i][j] == vd:
+                    trace[i][j] += ['d']
+
+    if debug:
+        for entry in table:
+            print entry
+        print '\n'
+        for entry in trace:
+            print entry
+        print '\n'
+
+    print 'Shortest Supersequence for the two sequences:'
+    print 'S:', S
+    print 'T:', T
+    print 'shortest length:', table[-1][-1]
+
+    result(trace, S, T)
+
+
+
+if __name__ == '__main__':
+    """
+    print example of global alignment from a trasparency shown in Tuesday\'s Lecture'
+    S = 'agaagggcttccgcgacggcgacgttcgggggcctttttcttttgcggttt'
+    T = 'agaagggcttccgcgacggcgacgttgagggggctcttttcttttgcggttt'
+    print 'S:', S
+    print 'T:', T
+    g_align(S, T)
+
+    print 'example of local alignment from lecture notes'
+    S1 = 'abcxdex'
+    T1 = 'xxxcde'
+    print 'S:', S1
+    print 'T:', T1
+    l_align(S1, T1)
+
+    print 'global alignment with affine gap penalty'
+    print 'S:', S1
+    print 'T:', T1
+    g_align_gap(S1, T1)
+    """
+
+
+    S = 'GTAAATTGGCCAAGGTTAC'
+    T = 'TAGATA'
+    #fit_align(S, T)
+    #overlap_align('AAATTT', 'TATATA')
+    #semiglobal_align('ACGTCAT','TCATGCA')
+
+    #super_sequence('BLUE', 'ABLE')
+
+    #inexact_repeat_align(T)
+    inexact_repeat_align(S)
+
+

@@ -1,0 +1,22 @@
+Yang Yang
+
+total number of ultraconserved elements observed: 123
+
+Algorithm:
+My program works as follows. It first preprocess the data in
+the attu machine, extract all those alignments that has more than
+40 species and longer than 100 bps. Then using those output files as
+secondary input to find the final results.
+
+The result finding algorithm works as follows. It take an multiz alignment
+block, find all the columns that have >= 40 identical nucleotide, assgin
+them 1, and -4 for the rest columns. Using this array, it runs the linear
+algorithm to compute the maximum length. Once the length is computed, if
+there are less than 100 columns, it will be discarded.
+
+For those with length >= 100, construct a bitmap for each column with
+>= 40. Do a full bitwise AND for all the bitmaps as well as a full bitwise OR.
+If the number of bits in the AND-ed result is >= 40, return the result (that gives the maximum number of species). 
+Otherwise, do a XOR for AND-ed result and OR-ed result. All the possible species to be subtracted correspond to the
+1-entries in the XOR-ed result. Recursively take each of those species out
+and return the result with longest length (you can also return the result with largest number of species).

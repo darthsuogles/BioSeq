@@ -1,0 +1,83 @@
+# a program that calculate the Lewis Carrol Distance of two words
+
+# parsing the core wordnet dictionary into memory (about 5000 entries)
+# this builds a hashed dictionary for further enhancement
+def parser(dict_file):
+    import re
+    pattern = re.compile(r'\[(\w+)\]')
+    dictionary = {}
+
+    fin = open(dict_file, 'r')
+    for line in fin:
+        for curr_match in pattern.finditer(line):
+            m = curr_match.group()[1:-1]
+            if m not in dictionary:
+                dictionary[m] = 1
+            else:
+                dictionary[m] += 1
+    return dictionary
+
+
+# find Lewis Carrol Distance for two words with a dictionary
+# use a breadth first search method, assume english words
+def lc_dist(v, w):
+    alphabet = ['a', 'b', 'c', 'd', 'e', 'f','g',
+                'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                'o', 'p', 'q', 'r', 's', 't', 'u',
+                'v', 'w', 'x', 'y', 'z']
+    dictionary = parser('core_wordnet.txt')
+    parent = [-1]
+    visited = [v]
+    curr_pos = 0
+    curr_word = visited[curr_pos]
+
+    while True:
+        # spawn a list of new words as candidates
+        word_list = []
+        for i, letter in enumerate(curr_word):
+            word_list += [curr_word[:i] + curr_word[i+1:]]
+            for nl in alphabet:
+                if nl != letter:
+                    word_list += [curr_word[:i] + nl + curr_word[i+1:]]
+                word_list += [curr_word[:i] + nl + curr_word[i:]]
+                if i == len(curr_word):
+                    word_list += [curr_word + nl]
+
+        for new_word in word_list:
+            if new_word in dictionary and new_word not in visited:
+                visited += [new_word]
+                parent += [curr_pos]
+                if new_word == w:
+                    depth = 0
+                    this_pos = len(parent)-1
+                    stack = []
+                    while parent[this_pos] != -1:
+                        stack = [visited[this_pos]] + stack
+                        this_pos = parent[this_pos]
+                        depth += 1
+                    print v,
+                    while stack != []:
+                        print '->',stack[0],
+                        stack = stack[1:]
+                    print '\nLewis Carrol Distance = %d\n' %(depth)
+                    return depth
+
+        curr_pos += 1
+        if curr_pos == len(visited):
+            print 'cannot find a transition from',v,'to',w
+            print
+            return
+        curr_word = visited[curr_pos]
+
+
+if __name__ == "__main__":
+
+    lc_dist('head', 'tail')
+    lc_dist('donkey', 'monkey')
+    lc_dist('dull', 'love')
+    lc_dist('freedom', 'justice')
+    lc_dist('razor', 'freeze')
+    lc_dist('real', 'kill')
+    lc_dist('cream', 'scream')
+    lc_dist('scream', 'cream')
+    lc_dist('describe', 'crab')

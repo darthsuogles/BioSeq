@@ -1,0 +1,16 @@
+## HSILL Workload
+
+## Reference: 16Mbp extracted from Human Chromosome 10
+## Query:     500,000 29bp Illumina reads
+## Match len: 17 (allows for 1 difference)
+
+
+Reads are from an early sequencing run by Lior Pachter at UC Berkeley
+
+
+## GPU Command
+$ mummergpu -l 14 human_ref.fna human_reads.fasta > out.gpu
+
+
+## CPU Command
+$ mummer -l 14 -maxmatch human_ref.fna human_reads.fasta > out.cpu
